@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mass Converter</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            width: 380px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #1d3557;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #777;
+            margin-bottom: 20px;
+        }
+
+        .converter {
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 6px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .result {
+            background: #edf5ff;
+            padding: 18px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result h3 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        #result {
+            color: #1d3557;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .reset {
+            background: #64748b;
+        }
+
+        .reset:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Mass Converter</h1>
+        <p class="description">
+            Convert between different units of mass
+        </p>
+
+        <div class="converter">
+
+            <label for="massInput">Enter Mass</label>
+            <input type="number" id="massInput"
+                   placeholder="Enter a value" min="0" step="any">
+
+            <label for="fromUnit">From</label>
+            <select id="fromUnit">
+                <option value="mg">Milligram (mg)</option>
+                <option value="g" selected>Gram (g)</option>
+                <option value="kg">Kilogram (kg)</option>
+                <option value="t">Metric Tonne (t)</option>
+                <option value="lb">Pound (lb)</option>
+                <option value="oz">Ounce (oz)</option>
+            </select>
+
+            <label for="toUnit">To</label>
+            <select id="toUnit">
+                <option value="mg">Milligram (mg)</option>
+                <option value="g">Gram (g)</option>
+                <option value="kg" selected>Kilogram (kg)</option>
+                <option value="t">Metric Tonne (t)</option>
+                <option value="lb">Pound (lb)</option>
+                <option value="oz">Ounce (oz)</option>
+            </select>
+
+            <div class="result">
+                <h3>Converted Mass</h3>
+                <p id="result">0 kg</p>
+            </div>
+
+            <button onclick="convertMass()">Convert</button>
+            <button class="reset" onclick="resetConverter()">Reset</button>
+
+        </div>
+    </div>
+
+    <script>
+        // Conversion factors relative to grams
+        const units = {
+            mg: 0.001,
+            g: 1,
+            kg: 1000,
+            t: 1000000,
+            lb: 453.59237,
+            oz: 28.349523125
+        };
+
+        // Mass conversion function
+        function convertMass() {
+
+            let input = parseFloat(
+                document.getElementById("massInput").value
+            );
+
+            let from = document.getElementById("fromUnit").value;
+            let to = document.getElementById("toUnit").value;
+
+            if (isNaN(input) || input < 0) {
+                document.getElementById("result").textContent =
+                    "Enter a valid mass";
+                return;
+            }
+
+            // Convert input to grams
+            let grams = input * units[from];
+
+            // Convert grams to selected unit
+            let converted = grams / units[to];
+
+            document.getElementById("result").textContent =
+                converted.toLocaleString("en-US", {
+                    maximumFractionDigits: 8
+                }) + " " + to;
+        }
+
+        // Reset converter
+        function resetConverter() {
+
+            document.getElementById("massInput").value = "";
+
+            document.getElementById("fromUnit").value = "g";
+
+            document.getElementById("toUnit").value = "kg";
+
+            document.getElementById("result").textContent = "0 kg";
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Click The Box - Speed Control!</title>
+<style>
+  body { text-align: center; font-family: Arial; background: #111; color: white; }
+  #gameArea { width: 400px; height: 400px; background: #222; margin: 20px auto; position: relative; border: 2px solid white; }
+  #box { width: 60px; height: 60px; background: yellow; position: absolute; cursor: pointer; border-radius: 10px; }
+  button { padding: 10px 15px; font-size: 16px; cursor: pointer; margin: 3px; }
+  .speedBtn { background: #333; color: white; border: 2px solid white; }
+  .selected { background: yellow !important; color: black !important; font-weight: bold; }
+  #high { color: gold; }
+  select { padding: 10px; font-size: 18px; }
+</style>
+</head>
+<body>
+
+<h1> Click The Box - Speed Control!</h1>
+<h2>Score: <span id="score">0</span> | Time: <span id="time">30</span>s</h2>
+<h2 id="high"> Highest: <span id="highScore">0</span></h2>
+<h3>Speed: <span id="speed">1</span>x | Box moves every: <span id="speedMs">1000</span>ms</h3>
+
+<h3>Choose Starting Speed:</h3>
+<button class="speedBtn" id="btnSlow" onclick="setSpeed(1500, this)"> Slow</button>
+<button class="speedBtn selected" id="btnNormal" onclick="setSpeed(1000, this)"> Normal</button>
+<button class="speedBtn" id="btnFast" onclick="setSpeed(600, this)"> Fast</button>
+<button class="speedBtn" id="btnInsane" onclick="setSpeed(300, this)"> INSANE</button>
+
+<br><br>
+<button onclick="startGame()"> Start Game</button>
+<button onclick="makeFaster()" style="background: red; color: white;">+ FASTER</button>
+<button onclick="makeSlower()" style="background: green; color: white;">- SLOWER</button>
+
+<div id="gameArea">
+  <div id="box" onclick="hitBox()"></div>
+</div>
+
+<p id="message">Pick a speed, then press Start!</p>
+
+<script>
+  let score = 0;
+  let timeLeft = 30;
+  let gameTimer;
+  let moveTimer;
+  let moveSpeed = 1000;
+  let startSpeed = 1000; // this is what you pick
+  let boxSize = 60;
+
+  let highScore = localStorage.getItem("myHighScore") || 0;
+  document.getElementById("highScore").innerText = highScore;
+
+  function setSpeed(ms, btn) {
+    startSpeed = ms;
+    moveSpeed = ms;
+    updateSpeedDisplay();
+    document.querySelectorAll('.speedBtn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById("message").innerText = "Speed set! Press Start to play at this speed.";
+  }
+
+  function makeFaster() {
+    if (timeLeft > 0) {
+      if (moveSpeed > 100) {
+        moveSpeed = moveSpeed - 150;
+        startAutoMove();
+        updateSpeedDisplay();
+      }
+    } else {
+      if (startSpeed > 100) {
+        startSpeed = startSpeed - 150;
+        moveSpeed = startSpeed;
+        updateSpeedDisplay();
+      }
+    }
+  }
+
+  function makeSlower() {
+    if (moveSpeed < 2000) {
+      moveSpeed = moveSpeed + 150;
+      startSpeed = moveSpeed;
+      startAutoMove();
+      updateSpeedDisplay();
+    }
+  }
+
+  function updateSpeedDisplay() {
+    document.getElementById("speedMs").innerText = moveSpeed;
+    document.getElementById("speed").innerText = (1000 / moveSpeed).toFixed(1);
+  }
+
+  function startGame() {
+    score = 0;
+    timeLeft = 30;
+    moveSpeed = startSpeed; 
+    boxSize = 60;
+    document.getElementById("score").innerText = score;
+    document.getElementById("time").innerText = timeLeft;
+    document.getElementById("box").style.width = boxSize + "px";
+    document.getElementById("box").style.height = boxSize + "px";
+    updateSpeedDisplay();
+    document.getElementById("message").innerText = "Go! Click the box!";
+    moveBox();
+    startAutoMove();
+
+    clearInterval(gameTimer);
+    gameTimer = setInterval(function() {
+      timeLeft--;
+      document.getElementById("time").innerText = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(gameTimer);
+        clearInterval(moveTimer);
+        endGame();
+      }
+    }, 1000);
+  }
+
+  function startAutoMove() {
+    clearInterval(moveTimer);
+    if (timeLeft > 0) {
+      moveTimer = setInterval(moveBox, moveSpeed);
+    }
+  }
+
+  function moveBox() {
+    let max = 400 - boxSize;
+    let x = Math.floor(Math.random() * max);
+    let y = Math.floor(Math.random() * max);
+    let box = document.getElementById("box");
+    box.style.left = x + "px";
+    box.style.top = y + "px";
+  }
+
+  function hitBox() {
+    if (timeLeft > 0) {
+      score++;
+      document.getElementById("score").innerText = score;
+      if (moveSpeed > 200) {
+        moveSpeed = moveSpeed - 30;
+        startAutoMove();
+        updateSpeedDisplay();
+      }
+      if (boxSize > 30) {
+        boxSize = boxSize - 1;
+        document.getElementById("box").style.width = boxSize + "px";
+        document.getElementById("box").style.height = boxSize + "px";
+      }
+      moveBox();
+    }
+  }
+
+  function endGame() {
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem("myHighScore", highScore);
+      document.getElementById("highScore").innerText = highScore;
+      document.getElementById("message").innerText = " NEW RECORD! Score: " + score;
+    } else {
+      document.getElementById("message").innerText = "Game Over! Score: " + score + " | Best: " + highScore;
+    }
+  }
+</script>
+
+</body>
+</html>
